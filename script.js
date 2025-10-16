@@ -1,82 +1,58 @@
-const dictionaryWords = ['password', '123456', 'qwerty', 'abc123', 'letmein', 'monkey', 'dragon', 'iloveyou', '1234', 'admin']; // Sample dictionary
+const evaluateBtn = document.getElementById('evaluateBtn');
+const passwordInput = document.getElementById('passwordInput');
+const resultsDiv = document.getElementById('results');
 
-function evaluatePassword() {
-  const password = document.getElementById('passwordInput').value;
-  const resultDiv = document.getElementById('result');
-
-  if (!password) {
-    resultDiv.innerHTML = '<p style="color: gray;">Please enter a password.</p>';
-    return;
-  }
-
-  const score = scorePassword(password);
-  const color = getColor(score);
-  const suggestions = getSuggestions(password);
-
-  let html = `<p class="score" style="color: ${color};">Score: ${score} / 100</p>`;
-  if (suggestions.length > 0) {
-    html += `<div class="suggestions"><strong>Suggestions:</strong><ul>`;
-    suggestions.forEach(s => { html += `<li>${s}</li>`; });
-    html += `</ul></div>`;
-  }
-  resultDiv.innerHTML = html;
-}
-
-function scorePassword(password) {
+function evaluatePassword(password) {
+  // Basic scoring based on length
   let score = 0;
-  // Length factor
-  score += Math.min(10, password.length) * 5;
-  // Diversity
-  const hasUpper = /[A-Z]/.test(password);
-  const hasLower = /[a-z]/.test(password);
-  const hasNumber = /\d/.test(password);
-  const hasSpecial = /[^A-Za-z0-9]/.test(password);
-  const varietyCount = [hasUpper, hasLower, hasNumber, hasSpecial].filter(Boolean).length;
-  score += varietyCount * 10;
-  // Penalty for dictionary words
-  const lowerPwd = password.toLowerCase();
-  for (const word of dictionaryWords) {
-    if (lowerPwd.includes(word)) {
-      score -= 20;
+  if (!password) return { score: 0, suggestions: [], message: 'Password is empty' };
+  // Length score
+  score += Math.min(50, password.length * 2);
+  // Has uppercase
+  if (/[A-Z]/.test(password)) score += 10;
+  // Has lowercase
+  if (/[a-z]/.test(password)) score += 10;
+  // Has digits
+  if (/[0-9]/.test(password)) score += 10;
+  // Has special characters
+  if (/[^A-Za-z0-9]/.test(password)) score += 10;
+  // Detect common dictionary words (simple check)
+  const commonWords = ['password','1234','admin','qwerty','letmein','welcome','monkey','dragon','hello'];
+  let containsCommonWord = false;
+  for (let word of commonWords) {
+    if (password.toLowerCase().includes(word)) {
+      containsCommonWord = true;
       break;
     }
   }
-  // Cap score
-  if (score < 0) score = 0;
-  if (score > 100) score = 100;
-  return score;
+  let suggestions = [];
+  if (containsCommonWord) {
+    suggestions.push('Avoid common words, add complexity.');
+  }
+  if (score < 60) {
+    suggestions.push('Increase password length, add special characters.');
+  }
+  // Cap score at 100
+  score = Math.min(score, 100);
+  return { score, suggestions };
 }
 
 function getColor(score) {
   if (score >= 80) return 'green';
-  if (score >= 50) return 'orange';
+  if (score >= 60) return 'orange';
   return 'red';
 }
 
-function getSuggestions(password) {
-  const suggestions = [];
-  if (password.length < 8) {
-    suggestions.push('Increase password length to at least 8 characters.');
+evaluateBtn.addEventListener('click', () => {
+  const pwd = passwordInput.value;
+  const result = evaluatePassword(pwd);
+  resultsDiv.innerHTML = '';
+  const div = document.createElement('div');
+  div.className = 'result';
+  div.style.backgroundColor = getColor(result.score);
+  div.innerHTML = `<strong>Score:</strong> ${result.score} <br/>`;
+  if (result.suggestions.length > 0) {
+    div.innerHTML += '<strong>Suggestions:</strong><ul>' + result.suggestions.map(s => `<li>${s}</li>`).join('') + '</ul>';
   }
-  // Check for common weaknesses
-  if (/^[A-Za-z]+$/.test(password)) {
-    suggestions.push('Add numbers or special characters for complexity.');
-  }
-  const lowerPwd = password.toLowerCase();
-  for (const word of dictionaryWords) {
-    if (lowerPwd.includes(word)) {
-      suggestions.push('Avoid common dictionary words.');
-      break;
-    }
-  }
-  if (/[^A-Za-z0-9]/.test(password) === false) {
-    suggestions.push('Include special characters for better security.');
-  }
-  if (/\d/.test(password) === false) {
-    suggestions.push('Include numbers.');
-  }
-  if (/[^A-Za-z0-9]/.test(password)) {
-    // no suggestion, already includes special characters
-  }
-  return suggestions;
-}
+  resultsDiv.appendChild(div);
+});
