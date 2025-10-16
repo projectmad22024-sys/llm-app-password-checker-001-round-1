@@ -5,20 +5,50 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Password Strength Evaluator</title>
 <style>
-  body { font-family: Arial, sans-serif; margin: 40px; }
-  h1 { color: #333; }
-  input { width: 100%; padding: 10px; font-size: 16px; }
-  button { padding: 10px 20px; font-size: 16px; margin-top: 10px; }
-  #result { margin-top: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
-  .score { font-weight: bold; font-size: 1.2em; }
-  .suggestions { margin-top: 10px; }
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+  }
+  #passwordInput {
+    width: 100%;
+    padding: 10px;
+    font-size: 1em;
+    margin-bottom: 10px;
+  }
+  #evaluateBtn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 1em;
+  }
+  #evaluateBtn:hover {
+    background-color: #555;
+  }
+  #results {
+    margin-top: 20px;
+  }
+  .result {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    color: #fff;
+  }
 </style>
 </head>
 <body>
 <h1>Password Strength Evaluator</h1>
 <input type="password" id="passwordInput" placeholder="Enter your password" />
-<button onclick="evaluatePassword()">Evaluate</button>
-<div id="result"></div>
+<button id="evaluateBtn">Evaluate Password</button>
+<div id="results"></div>
 <script src="script.js"></script>
 </body>
 </html>
